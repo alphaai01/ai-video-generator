@@ -17,6 +17,7 @@ interface PromptInputProps {
   onChange: (value: string) => void;
   maxLength?: number;
   disabled?: boolean;
+  placeholder?: string;
 }
 
 export const PromptInput: React.FC<PromptInputProps> = ({
@@ -24,6 +25,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
   onChange,
   maxLength = 4000,
   disabled = false,
+  placeholder = 'Describe the video you want to generate... Be creative and specific!',
 }) => {
   const [showExamples, setShowExamples] = useState(false);
 
@@ -47,7 +49,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           value={value}
           onChange={(e) => onChange(e.target.value.slice(0, maxLength))}
           disabled={disabled}
-          placeholder="Describe the video you want to generate... Be creative and specific!"
+          placeholder={placeholder}
           className={clsx(
             'w-full min-h-[160px] p-4 bg-dark-700 border border-dark-600 rounded-lg',
             'text-white placeholder-gray-500 resize-y',

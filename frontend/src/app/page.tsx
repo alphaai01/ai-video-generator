@@ -179,6 +179,7 @@ export default function Page() {
                       value={prompt}
                       onChange={setPrompt}
                       disabled={isGenerating}
+                      placeholder="Describe how to animate the image (optional)..."
                     />
                     <GenerationSettingsComponent
                       settings={settings}
@@ -231,8 +232,7 @@ export default function Page() {
                   }
                   disabled={
                     isGenerating ||
-                    !prompt.trim() ||
-                    (activeTab === 'image' && !image)
+                    (activeTab === 'image' ? !image : !prompt.trim())
                   }
                   loading={isGenerating}
                   icon={!isGenerating && <Sparkles className="w-5 h-5" />}
@@ -240,6 +240,8 @@ export default function Page() {
                 >
                   {isGenerating
                     ? 'Generating Video...'
+                    : activeTab === 'image'
+                    ? 'Generate Video from Image'
                     : 'Generate Video'}
                 </Button>
                 {isComplete && (

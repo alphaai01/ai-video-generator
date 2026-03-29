@@ -399,7 +399,11 @@ router.post(
       throw new ValidationError('Image file is required');
     }
 
-    const { prompt, duration = 5, resolution = '1080p' } = req.body;
+    const { duration = 5, resolution = '1080p' } = req.body;
+    // Prompt is optional for image-to-video; use a default if not provided
+    const prompt = req.body.prompt && req.body.prompt.trim()
+      ? req.body.prompt.trim()
+      : 'Generate a creative video from this image';
 
     const promptValidation = validatePrompt(prompt);
     if (!promptValidation.isValid) {

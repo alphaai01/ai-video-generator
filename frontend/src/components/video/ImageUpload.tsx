@@ -56,9 +56,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.currentTarget.files;
+    const files = e.target.files;
     if (files && files.length > 0) {
       handleFileSelect(files[0]);
+    }
+    // Reset input value so the same file can be re-selected
+    if (e.target) {
+      e.target.value = '';
     }
   };
 

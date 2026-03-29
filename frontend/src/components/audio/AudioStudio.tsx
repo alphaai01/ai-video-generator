@@ -15,6 +15,8 @@ import {
   Sparkles,
   ChevronDown,
   RotateCcw,
+  Headphones,
+  Loader2,
 } from 'lucide-react';
 
 // Voice metadata types
@@ -152,9 +154,27 @@ export const AudioStudio: React.FC = () => {
   const [audioSize, setAudioSize] = useState<number>(0);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [genderFilter, setGenderFilter] = useState<'All' | 'Male' | 'Female'>('All');
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
   const languageDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Sample phrases for voice preview, keyed by language
+  const SAMPLE_PHRASES: Record<string, string> = {
+    'English (US)': 'Hello! This is a preview of my voice. I hope you enjoy how I sound.',
+    'English (UK)': 'Hello! This is a preview of my voice. I hope you enjoy how I sound.',
+    'Hindi': '\u0928\u092E\u0938\u094D\u0924\u0947! \u092F\u0939 \u092E\u0947\u0930\u0940 \u0906\u0935\u093E\u091C \u0915\u093E \u090F\u0915 \u0928\u092E\u0942\u0928\u093E \u0939\u0948\u0964 \u0906\u0936\u093E \u0939\u0948 \u0906\u092A\u0915\u094B \u092A\u0938\u0902\u0926 \u0906\u090F\u0917\u0940\u0964',
+    'Spanish': '\u00A1Hola! Esta es una vista previa de mi voz. Espero que te guste c\u00F3mo sueno.',
+    'French': 'Bonjour ! Ceci est un aper\u00E7u de ma voix. J\u2019esp\u00E8re que vous appr\u00E9cierez.',
+    'German': 'Hallo! Dies ist eine Vorschau meiner Stimme. Ich hoffe, sie gef\u00E4llt Ihnen.',
+    'Japanese': '\u3053\u3093\u306B\u3061\u306F\uFF01\u3053\u308C\u306F\u79C1\u306E\u58F0\u306E\u30D7\u30EC\u30D3\u30E5\u30FC\u3067\u3059\u3002\u6C17\u306B\u5165\u3063\u3066\u3044\u305F\u3060\u3051\u308C\u3070\u5E78\u3044\u3067\u3059\u3002',
+    'Chinese': '\u4F60\u597D\uFF01\u8FD9\u662F\u6211\u58F0\u97F3\u7684\u9884\u89C8\u3002\u5E0C\u671B\u60A8\u559C\u6B22\u6211\u7684\u58F0\u97F3\u3002',
+    'Korean': '\uC548\uB155\uD558\uC138\uC694! \uC774\uAC83\uC740 \uC81C \uBAA9\uC18C\uB9AC \uBBF8\uB9AC\uBCF4\uAE30\uC785\uB2C8\uB2E4. \uB9C8\uC74C\uC5D0 \uB4DC\uC2DC\uAE38 \uBC14\uB78D\uB2C8\uB2E4.',
+    'Portuguese': 'Ol\u00E1! Esta \u00E9 uma pr\u00E9via da minha voz. Espero que goste de como eu soo.',
+    'Arabic': '\u0645\u0631\u062D\u0628\u0627\u064B! \u0647\u0630\u0647 \u0645\u0639\u0627\u064A\u0646\u0629 \u0644\u0635\u0648\u062A\u064A. \u0623\u062A\u0645\u0646\u0649 \u0623\u0646 \u064A\u0639\u062C\u0628\u0643 \u0635\u0648\u062A\u064A.',
+  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -238,6 +258,73 @@ export const AudioStudio: React.FC = () => {
       setIsGenerating(false);
     }
   }, [text, selectedVoice, selectedStyle, speed, pitch]);
+
+  // Preview voice with a sample phrase
+  const handlePreviewVoice = useCallback(async () => {
+    // Stop any currently playing preview
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+      previewAudioRef.current.currentTime = 0;
+    }
+
+    setIsPreviewLoading(true);
+    setIsPreviewPlaying(false);
+
+    try {
+      const sampleText = SAMPLE_PHRASES[selectedLanguage] || SAMPLE_PHRASES['English (US)'];
+
+      const response = await fetch(`${API_URL}/api/speech/generate-audio`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: sampleText,
+          voice: selectedVoice.id,
+          style: selectedStyle !== 'default' ? selectedStyle : undefined,
+          speed: speed !== 'medium' ? speed : undefined,
+          pitch: pitch !== 'medium' ? pitch : undefined,
+          outputFormat: 'mp3',
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || `Preview failed (${response.status})`);
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.data?.audioUrl) {
+        const audio = new Audio(result.data.audioUrl);
+        previewAudioRef.current = audio;
+
+        audio.onplay = () => setIsPreviewPlaying(true);
+        audio.onended = () => setIsPreviewPlaying(false);
+        audio.onpause = () => setIsPreviewPlaying(false);
+        audio.onerror = () => {
+          setIsPreviewPlaying(false);
+          setError('Failed to play voice preview');
+        };
+
+        await audio.play();
+      } else {
+        throw new Error('No audio data in preview response');
+      }
+    } catch (err: any) {
+      console.error('Voice preview error:', err);
+      setError(err.message || 'Failed to preview voice');
+    } finally {
+      setIsPreviewLoading(false);
+    }
+  }, [selectedVoice, selectedStyle, speed, pitch, selectedLanguage]);
+
+  // Stop preview when voice selection changes
+  useEffect(() => {
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+      previewAudioRef.current.currentTime = 0;
+      setIsPreviewPlaying(false);
+    }
+  }, [selectedVoice.id, selectedStyle, speed, pitch]);
 
   // Play/pause audio
   const togglePlayback = () => {
@@ -398,7 +485,7 @@ export const AudioStudio: React.FC = () => {
             </div>
 
             {/* Voice Grid */}
-            <div className="mb-2">
+            <div className="mb-4">
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Voice
               </label>
@@ -424,6 +511,33 @@ export const AudioStudio: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            {/* Preview Voice Button */}
+            <button
+              onClick={handlePreviewVoice}
+              disabled={isGenerating || isPreviewLoading}
+              className={clsx(
+                'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg',
+                'text-sm font-medium transition-all duration-200 border',
+                isPreviewPlaying
+                  ? 'bg-accent-purple bg-opacity-20 text-accent-purple border-accent-purple'
+                  : 'bg-dark-700 text-gray-300 border-dark-600 hover:bg-dark-600 hover:border-accent-cyan hover:text-white',
+                (isGenerating || isPreviewLoading) && 'opacity-50 cursor-not-allowed'
+              )}
+            >
+              {isPreviewLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isPreviewPlaying ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Headphones className="w-4 h-4" />
+              )}
+              {isPreviewLoading
+                ? 'Loading Preview...'
+                : isPreviewPlaying
+                ? 'Playing Preview...'
+                : `Preview "${selectedVoice.name}" Voice`}
+            </button>
           </Card>
 
           {/* Style & Controls */}

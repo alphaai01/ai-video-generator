@@ -118,10 +118,8 @@ export function useVideoGeneration() {
         return;
       }
 
-      if (!imagePrompt.trim()) {
-        setError('Please enter a prompt');
-        return;
-      }
+      // Prompt is optional for image-to-video; use a default if empty
+      const finalPrompt = imagePrompt.trim() || 'Generate a creative video from this image';
 
       resetGeneration();
       setStatus('generating');
@@ -130,7 +128,7 @@ export function useVideoGeneration() {
       try {
         const response = await generateVideoFromImage(
           imageFile,
-          imagePrompt,
+          finalPrompt,
           settings.duration,
           settings.resolution === '1080p' ? '1080p' : '720p'
         );
