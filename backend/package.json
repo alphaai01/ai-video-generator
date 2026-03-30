@@ -1,39 +1,40 @@
 {
-  "name": "ai-video-gen-backend",
-  "version": "1.0.0",
-  "description": "Node.js/Express backend for AI video generation app with Azure OpenAI Sora 2, Speech Services, and Blob Storage",
-  "main": "src/server.js",
-  "type": "module",
-  "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "ai",
-    "video-generation",
-    "sora",
-    "azure",
-    "openai"
-  ],
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "@azure/storage-blob": "^12.17.0",
-    "axios": "^1.6.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "express-async-errors": "^3.1.1",
-    "microsoft-cognitiveservices-speech-sdk": "^1.33.1",
-    "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.1",
-    "uuid": "^9.0.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
-  },
-  "engines": {
-    "node": ">=16.0.0"
-  }
+    "name": "ai-video-gen-backend",
+    "version": "1.0.0",
+    "description": "Node.js/Express backend for AI video generation app with Azure OpenAI Sora 2, Speech Services, and Blob Storage",
+    "main": "src/server.js",
+    "type": "module",
+    "scripts": {
+          "start": "node src/server.js",
+          "dev": "nodemon src/server.js",
+          "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+          "ai",
+          "video-generation",
+          "sora",
+          "azure",
+          "openai"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+          "@azure/storage-blob": "^12.17.0",
+          "axios": "^1.6.2",
+          "cors": "^2.8.5",
+          "dotenv": "^16.3.1",
+          "express": "^4.18.2",
+          "express-async-errors": "^3.1.1",
+          "form-data": "^4.0.0",
+          "microsoft-cognitiveservices-speech-sdk": "^1.33.1",
+          "morgan": "^1.10.0",
+          "multer": "^1.4.5-lts.1",
+          "uuid": "^9.0.1"
+    },
+    "devDependencies": {
+          "nodemon": "^3.0.2"
+    },
+    "engines": {
+          "node": ">=16.0.0"
+    }
 }
