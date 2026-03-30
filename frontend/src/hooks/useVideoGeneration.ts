@@ -130,7 +130,8 @@ export function useVideoGeneration() {
           imageFile,
           finalPrompt,
           settings.duration,
-          settings.resolution === '1080p' ? '1080p' : '720p'
+          settings.resolution === '1080p' ? '1080p' : '720p',
+                    settings.aspectRatio
         );
 
         setJobId(response.jobId);
