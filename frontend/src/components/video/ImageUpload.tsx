@@ -12,7 +12,7 @@ interface ImageUploadProps {
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
-  image,
+  image: _image,
   onImageChange,
   disabled = false,
 }) => {
