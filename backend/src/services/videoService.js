@@ -107,7 +107,7 @@ class VideoService {
                                                         model: this.model,
                                                         prompt: prompt,
                                                         size,
-                                                        seconds: Number(duration),
+                                                        seconds: String(Number(duration)),
                             };
 
                             console.log(`[VideoService] Payload:`, JSON.stringify(payload, null, 2));
@@ -341,7 +341,7 @@ class VideoService {
                                                         model: this.model,
                                                         prompt: 'A calm ocean wave',
                                                         size: '1280x720',
-                                                        seconds: 4,
+                                                        seconds: '4',
                             };
 
                             const response = await this.axiosInstance.post(this.baseUrl, testPayload);
